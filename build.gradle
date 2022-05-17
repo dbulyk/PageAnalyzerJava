@@ -22,8 +22,8 @@ repositories {
 }
 
 dependencies {
-    // Use JUnit Jupiter for testing.
-//    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
+    implementation 'io.javalin:javalin:4.6.0'
+    implementation 'org.slf4j:slf4j-simple:1.7.36'
     testImplementation(
             platform('org.junit:junit-bom:5.8.2'),
             'org.junit.jupiter:junit-jupiter',
