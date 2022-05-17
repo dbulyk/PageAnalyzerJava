@@ -1,1 +1,1 @@
-web: sh target/bin/webapp
+web: java -D server.port=$PORT $JAVA_OPTS -jar build/libs/app-1.0-SNAPSHOT.jar
