@@ -22,3 +22,6 @@ build: #Выполняем сборку проекта
 
 report:
 	./gradlew jacocoTestReport
+
+start:
+	gradle run

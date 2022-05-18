@@ -14,7 +14,6 @@ plugins {
 }
 
 group = 'hexlet.code'
-version = '1.0-SNAPSHOT'
 
 repositories {
     // Use Maven Central for resolving dependencies.
@@ -57,3 +56,17 @@ jacocoTestReport {
 jacoco {
     toolVersion = "0.8.7"
 }
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes(
+                'Main-Class': 'hexlet.code.App'
+        )
+    }
+    from {
+        configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it)}
+    }
+}
+
+
