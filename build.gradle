@@ -75,5 +75,18 @@ task generateMigrations(type: JavaExec) {
     mainClass = 'hexlet.code.MigrationGenerator'
 }
 
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes(
+                'Main-Class': 'hexlet.code.App'
+        )
+    }
+    from {
+        configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it)}
+    }
+}
+
 task stage(dependsOn: ['clean', 'installDist'])
 installDist.mustRunAfter clean
+
