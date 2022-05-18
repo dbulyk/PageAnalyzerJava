@@ -1,9 +1,6 @@
 package hexlet.code;
 
-// Импортируем зависимости, необходимые для работы приложения
 import io.javalin.Javalin;
-import io.javalin.core.JavalinConfig;
-
 
 public final class App {
 
@@ -12,12 +9,25 @@ public final class App {
         return Integer.parseInt(port);
     }
 
+    private static String getMode() {
+        return System.getenv().getOrDefault("APP_ENV", "development");
+    }
+
+    private static boolean isProduction() {
+        return getMode().equals("production");
+    }
+
     private static void addRoutes(Javalin app) {
         app.get("/", ctx -> ctx.result("Hello, world!"));
     }
 
     public static Javalin getApp() {
-        Javalin app = Javalin.create(JavalinConfig::enableDevLogging);
+        Javalin app = Javalin.create(config -> {
+            if (!isProduction()) {
+                config.enableDevLogging();
+            }
+            config.enableWebjars();
+        });
         addRoutes(app);
 
         app.before(ctx -> ctx.attribute("ctx", ctx));

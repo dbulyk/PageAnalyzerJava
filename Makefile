@@ -1,27 +1,34 @@
-install: #Очищаем предыдущую сборку
-	./gradlew clean install
-	./gradlew install
+setup:
+	gradle wrapper --gradle-version 7.4
 
-run-dist: #Выполняем запуск файла
-	./gradlew run
-
-check-updates: #Проверяем обновления зависимостей
-	chmod +x ./gradlew
-	./gradlew dependencyUpdates
-
-lint: #Проверяем стиль кода
-	./gradlew checkstyleMain
-
-clean: #Выполняем очищение проекта от предыдущих сборок
+clean:
 	./gradlew clean
 
-.PHONY: build
-build: #Выполняем сборку проекта
+build:
 	./gradlew clean build
-	make lint
+
+start:
+	APP_ENV=development ./gradlew run
+
+install:
+	./gradlew install
+
+start-dist:
+	APP_ENV=production ./build/install/java-javalin-blog/bin/java-javalin-blog
+
+generate-migrations:
+	./gradlew generateMigrations
+
+lint:
+	./gradlew checkstyleMain checkstyleTest
+
+test:
+	./gradlew test
 
 report:
 	./gradlew jacocoTestReport
 
-start:
-	gradle run
+check-updates:
+	./gradlew dependencyUpdates
+
+.PHONY: build
