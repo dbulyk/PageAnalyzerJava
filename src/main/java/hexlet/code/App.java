@@ -1,9 +1,14 @@
 package hexlet.code;
 
+import hexlet.code.controller.RootController;
 import io.javalin.Javalin;
+import io.javalin.plugin.rendering.template.JavalinThymeleaf;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
+import nz.net.ultraq.thymeleaf.layoutdialect.LayoutDialect;
+import org.thymeleaf.extras.java8time.dialect.Java8TimeDialect;
 
 public final class App {
-
     private static int getPort() {
         String port = System.getenv().getOrDefault("PORT", "8080");
         return Integer.parseInt(port);
@@ -18,7 +23,20 @@ public final class App {
     }
 
     private static void addRoutes(Javalin app) {
-        app.get("/", ctx -> ctx.result("Hello, world!"));
+        app.get("/", RootController.getWelcome());
+    }
+
+    private static TemplateEngine getTemplateEngine() {
+        TemplateEngine templateEngine = new TemplateEngine();
+
+        ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
+        templateResolver.setPrefix("/templates/");
+
+        templateEngine.addTemplateResolver(templateResolver);
+        templateEngine.addDialect(new LayoutDialect());
+        templateEngine.addDialect(new Java8TimeDialect());
+
+        return templateEngine;
     }
 
     public static Javalin getApp() {
@@ -27,9 +45,9 @@ public final class App {
                 config.enableDevLogging();
             }
             config.enableWebjars();
+            JavalinThymeleaf.configure(getTemplateEngine());
         });
         addRoutes(app);
-
         app.before(ctx -> ctx.attribute("ctx", ctx));
 
         return app;

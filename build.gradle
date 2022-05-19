@@ -23,7 +23,7 @@ application {
 }
 
 dependencies {
-    implementation 'io.javalin:javalin:4.3.0'
+    implementation 'io.javalin:javalin:4.6.0'
     implementation 'org.slf4j:slf4j-simple:1.7.36'
 
     implementation 'org.thymeleaf:thymeleaf:3.0.15.RELEASE'
@@ -41,7 +41,6 @@ dependencies {
     implementation 'io.ebean:ebean-annotation:7.7'
     annotationProcessor 'io.ebean:querybean-generator:12.15.1'
 
-    // NOTE: ebean-ddl-generator требует старые зависимости, которых нет в java 9 и выше
     implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.5'
     implementation 'javax.activation:activation:1.1.1'
 
@@ -49,7 +48,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.8.2'
     testImplementation 'org.assertj:assertj-core:3.22.0'
     testImplementation 'io.ebean:ebean-test:12.15.1'
-    testImplementation 'com.konghq:unirest-java:3.13.6'
+    testImplementation 'com.konghq:unirest-java:3.13.8'
 }
 
 test {
