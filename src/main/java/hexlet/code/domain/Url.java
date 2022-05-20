@@ -15,6 +15,7 @@ public class Url extends Model {
     @WhenCreated
     private Date createdAt;
 
+    public Url() { }
     public Url(String n) {
         this.name = n;
     }

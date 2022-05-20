@@ -1,12 +1,17 @@
 package hexlet.code;
 
 import hexlet.code.controller.RootController;
+import hexlet.code.controller.UrlController;
 import io.javalin.Javalin;
 import io.javalin.plugin.rendering.template.JavalinThymeleaf;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import nz.net.ultraq.thymeleaf.layoutdialect.LayoutDialect;
 import org.thymeleaf.extras.java8time.dialect.Java8TimeDialect;
+
+import static io.javalin.apibuilder.ApiBuilder.path;
+import static io.javalin.apibuilder.ApiBuilder.get;
+import static io.javalin.apibuilder.ApiBuilder.post;
 
 public final class App {
     private static int getPort() {
@@ -23,7 +28,17 @@ public final class App {
     }
 
     private static void addRoutes(Javalin app) {
-        app.get("/", RootController.getWelcome());
+        app.get("/", RootController.getUrl());
+
+        app.routes(() -> {
+            path("/urls", () -> {
+                get(UrlController.getListUrl());
+                post(UrlController.getCreateUrl());
+                path("{id}", () -> {
+                    get(UrlController.getShowUrl());
+                });
+            });
+        });
     }
 
     private static TemplateEngine getTemplateEngine() {
