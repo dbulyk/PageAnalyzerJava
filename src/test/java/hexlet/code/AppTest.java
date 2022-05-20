@@ -1,5 +1,6 @@
 package hexlet.code;
 
+import hexlet.code.domain.query.QUrl;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -90,6 +91,34 @@ class AppTest {
 
             assertThat(response.getStatus()).isEqualTo(responseSuccess);
             assertThat(body).contains(existingUrl.getName());
+        }
+
+        @Test
+        void testCreate() {
+            String inputName = "https://www.example.com";
+            HttpResponse responsePost = Unirest
+                    .post(baseUrl + "/urls")
+                    .field("name", inputName)
+                    .asEmpty();
+
+            final int responseFound = 302;
+            assertThat(responsePost.getStatus()).isEqualTo(responseFound);
+            assertThat(responsePost.getHeaders().getFirst("Location")).isEqualTo("/urls");
+
+            HttpResponse<String> response = Unirest
+                    .get(baseUrl + "/urls")
+                    .asString();
+            String body = response.getBody();
+
+            assertThat(response.getStatus()).isEqualTo(responseSuccess);
+            assertThat(body).contains("Страница успешно добавлена");
+
+            Url actualUrl = new QUrl()
+                    .name.equalTo(inputName)
+                    .findOne();
+
+            assertThat(actualUrl).isNotNull();
+            assertThat(actualUrl.getName()).isEqualTo(inputName);
         }
     }
 }
