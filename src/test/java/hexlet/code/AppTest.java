@@ -1,6 +1,8 @@
 package hexlet.code;
 
 import hexlet.code.domain.query.QUrl;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +20,10 @@ import io.ebean.Transaction;
 
 import hexlet.code.domain.Url;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 
 class AppTest {
 
@@ -31,9 +37,11 @@ class AppTest {
     private static Url existingUrl;
     private static Transaction transaction;
     private final int responseSuccess = 200;
+    private final int responseFound = 302;
+    private static MockWebServer mockWebServer;
 
     @BeforeAll
-    public static void beforeAll() {
+    public static void beforeAll() throws IOException {
         app = App.getApp();
         app.start(0);
         int port = app.port();
@@ -41,6 +49,12 @@ class AppTest {
 
         existingUrl = new Url("https://ru.hexlet.io");
         existingUrl.save();
+
+        mockWebServer = new MockWebServer();
+
+        String expected = Files.readString(Paths.get("src", "test", "resources", "expected", "mock"));
+        mockWebServer.enqueue(new MockResponse().setBody(expected));
+        mockWebServer.start();
     }
 
     @AfterAll
@@ -101,7 +115,6 @@ class AppTest {
                     .field("name", inputName)
                     .asEmpty();
 
-            final int responseFound = 302;
             assertThat(responsePost.getStatus()).isEqualTo(responseFound);
             assertThat(responsePost.getHeaders().getFirst("Location")).isEqualTo("/urls");
 
@@ -119,6 +132,30 @@ class AppTest {
 
             assertThat(actualUrl).isNotNull();
             assertThat(actualUrl.getName()).isEqualTo(inputName);
+        }
+
+        @Test
+        void testCheckUrl() {
+            String mockDescription = "Живое онлайн сообщество программистов и разрабо";
+            String mockTitle = "Хекслет — больше ";
+            String mockH1 = "Онлайн-школа прог";
+
+            HttpResponse<String> response = Unirest
+                    .post(baseUrl + "/urls/" + existingUrl.getId() + "/checks")
+                    .asString();
+
+            assertThat(response.getStatus()).isEqualTo(responseFound);
+            assertThat(response.getHeaders().getFirst("Location")).isEqualTo("/urls/" + existingUrl.getId());
+
+            String body = Unirest
+                    .get(baseUrl + "/urls/" + existingUrl.getId())
+                    .asString()
+                    .getBody();
+
+            assertThat(body).contains("200");
+            assertThat(body).contains(mockDescription);
+            assertThat(body).contains(mockH1);
+            assertThat(body).contains(mockTitle);
         }
     }
 }

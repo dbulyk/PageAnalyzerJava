@@ -1,10 +1,16 @@
 package hexlet.code.controller;
 
 import hexlet.code.domain.Url;
+import hexlet.code.domain.UrlCheck;
 import hexlet.code.domain.query.QUrl;
+import hexlet.code.domain.query.QUrlCheck;
 import io.javalin.http.Handler;
 import io.javalin.http.NotFoundResponse;
 import io.ebean.PagedList;
+import kong.unirest.HttpResponse;
+import kong.unirest.Unirest;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import java.net.URL;
 import java.util.List;
@@ -23,6 +29,9 @@ public class UrlController {
         return listUrl;
     }
 
+    public static Handler getUrlCheck() {
+        return urlCheck;
+    }
     private static Handler listUrl = ctx -> {
         int page = ctx.queryParamAsClass("page", Integer.class).getOrDefault(1) - 1;
         final int rowsPerPage = 10;
@@ -92,7 +101,50 @@ public class UrlController {
             throw new NotFoundResponse();
         }
 
+        List<UrlCheck> urlChecks = new QUrlCheck()
+                .url.equalTo(url)
+                .orderBy().id.desc()
+                .findList();
+
+        ctx.attribute("urlChecks", urlChecks);
         ctx.attribute("url", url);
         ctx.render("urls/show.html");
+    };
+
+    private static Handler urlCheck = ctx -> {
+        long id = ctx.pathParamAsClass("id", Long.class).getOrDefault(null);
+
+        Url url = new QUrl()
+                .id.equalTo(id)
+                .findOne();
+
+        if (url == null) {
+            throw new NotFoundResponse();
+        }
+
+        HttpResponse<String> response = Unirest
+                .get(url.getName())
+                .asString();
+
+        Document body = Jsoup.parse(response.getBody());
+        int statusCode = response.getStatus();
+        String title = body.title();
+        String description = null;
+        String h1 = null;
+
+        if (body.selectFirst("meta[name=description]") != null) {
+            description = body.selectFirst("meta[name=description]").attr("content");
+        }
+
+        if (body.selectFirst("h1") != null) {
+            h1 = body.selectFirst("h1").text();
+        }
+
+        UrlCheck check = new UrlCheck(statusCode, title, h1, description, url);
+        check.save();
+
+        ctx.sessionAttribute("flash", "Страница успешно проверена");
+        ctx.sessionAttribute("flash-type", "success");
+        ctx.redirect("/urls/" + id);
     };
 }

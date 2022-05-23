@@ -36,6 +36,7 @@ public final class App {
                 post(UrlController.getCreateUrl());
                 path("{id}", () -> {
                     get(UrlController.getShowUrl());
+                    post("/checks", UrlController.getUrlCheck());
                 });
             });
         });
