@@ -118,7 +118,7 @@ public class UrlController {
             throw new NotFoundResponse();
         }
 
-        HttpResponse<String> response = null;
+        HttpResponse<String> response;
         try {
             response = Unirest
                     .get(url.getName())
