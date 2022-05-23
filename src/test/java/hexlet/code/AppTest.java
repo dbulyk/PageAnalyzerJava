@@ -36,8 +36,8 @@ class AppTest {
     private static String baseUrl;
     private static Url existingUrl;
     private static Transaction transaction;
-    private final int responseSuccess = 200;
-    private final int responseFound = 302;
+    private final int responseStatusSuccess = 200;
+    private final int responseStatusFound = 302;
     private static MockWebServer mockWebServer;
 
     @BeforeAll
@@ -77,14 +77,13 @@ class AppTest {
         @Test
         void testIndex() {
             HttpResponse<String> response = Unirest.get(baseUrl).asString();
-            assertThat(response.getStatus()).isEqualTo(responseSuccess);
+            assertThat(response.getStatus()).isEqualTo(responseStatusSuccess);
             assertThat(response.getBody()).contains("Анализатор страниц");
         }
     }
 
     @Nested
     class UrlTest {
-
         @Test
         void testIndex() {
             HttpResponse<String> response = Unirest
@@ -92,7 +91,7 @@ class AppTest {
                     .asString();
             String body = response.getBody();
 
-            assertThat(response.getStatus()).isEqualTo(responseSuccess);
+            assertThat(response.getStatus()).isEqualTo(responseStatusSuccess);
             assertThat(body).contains(existingUrl.getName());
         }
 
@@ -103,7 +102,7 @@ class AppTest {
                     .asString();
             String body = response.getBody();
 
-            assertThat(response.getStatus()).isEqualTo(responseSuccess);
+            assertThat(response.getStatus()).isEqualTo(responseStatusSuccess);
             assertThat(body).contains(existingUrl.getName());
         }
 
@@ -115,7 +114,7 @@ class AppTest {
                     .field("name", inputName)
                     .asEmpty();
 
-            assertThat(responsePost.getStatus()).isEqualTo(responseFound);
+            assertThat(responsePost.getStatus()).isEqualTo(responseStatusFound);
             assertThat(responsePost.getHeaders().getFirst("Location")).isEqualTo("/urls");
 
             HttpResponse<String> response = Unirest
@@ -123,7 +122,7 @@ class AppTest {
                     .asString();
             String body = response.getBody();
 
-            assertThat(response.getStatus()).isEqualTo(responseSuccess);
+            assertThat(response.getStatus()).isEqualTo(responseStatusSuccess);
             assertThat(body).contains("Страница успешно добавлена");
 
             Url actualUrl = new QUrl()
@@ -144,7 +143,7 @@ class AppTest {
                     .post(baseUrl + "/urls/" + existingUrl.getId() + "/checks")
                     .asString();
 
-            assertThat(response.getStatus()).isEqualTo(responseFound);
+            assertThat(response.getStatus()).isEqualTo(responseStatusFound);
             assertThat(response.getHeaders().getFirst("Location")).isEqualTo("/urls/" + existingUrl.getId());
 
             String body = Unirest

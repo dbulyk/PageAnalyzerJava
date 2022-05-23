@@ -9,6 +9,7 @@ import io.javalin.http.NotFoundResponse;
 import io.ebean.PagedList;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
+import kong.unirest.UnirestException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -64,12 +65,7 @@ public class UrlController {
         URL fullUrl = new URL(name);
         String protocol = fullUrl.getProtocol();
         String domain = fullUrl.getAuthority();
-        int port = fullUrl.getPort();
-
         String shortUrl = protocol + "://" + domain;
-        if (port != -1) {
-            shortUrl += port;
-        }
 
         Url findUrl = new QUrl()
                 .name.equalTo(shortUrl)
@@ -122,9 +118,17 @@ public class UrlController {
             throw new NotFoundResponse();
         }
 
-        HttpResponse<String> response = Unirest
-                .get(url.getName())
-                .asString();
+        HttpResponse<String> response = null;
+        try {
+            response = Unirest
+                    .get(url.getName())
+                    .asString();
+        } catch (UnirestException e) {
+            ctx.sessionAttribute("flash", "Страница не может быть проверена, невалидный URL.");
+            ctx.sessionAttribute("flash-type", "danger");
+            ctx.redirect("/urls/" + id);
+            return;
+        }
 
         Document body = Jsoup.parse(response.getBody());
         int statusCode = response.getStatus();
