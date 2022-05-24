@@ -169,5 +169,24 @@ class AppTest {
             assertThat(body).contains(mockH1);
             assertThat(body).contains(mockTitle);
         }
+
+        @Test
+        void testUncorrectedUrl() {
+            String url = "hexlet.io";
+            HttpResponse<String> response = Unirest
+                    .post(baseUrl + "/urls")
+                    .field("url", url)
+                    .asString();
+
+            String body = response.getBody();
+
+            Url urlIncorrect = new QUrl()
+                    .name.equalTo(url)
+                    .findOne();
+
+            assertThat(response.getStatus()).isEqualTo(responseStatusUncorrectedUrl);
+            assertThat(body).contains("Некорректный URL");
+            assertThat(urlIncorrect).isNull();
+        }
     }
 }

@@ -124,6 +124,8 @@ public class UrlController {
                     .get(url.getName())
                     .asString();
         } catch (UnirestException e) {
+            final int statusCode = 422;
+            ctx.status(statusCode);
             ctx.sessionAttribute("flash", "Страница не может быть проверена, невалидный URL.");
             ctx.sessionAttribute("flash-type", "danger");
             ctx.redirect("/urls/" + id);
