@@ -37,7 +37,6 @@ class AppTest {
     private static Url existingUrl;
     private static Transaction transaction;
     private final int responseStatusSuccess = 200;
-    private final int responseStatusFound = 302;
     private final int responseStatusUncorrectedUrl = 422;
     private static MockWebServer mockWebServer;
 
@@ -115,6 +114,7 @@ class AppTest {
                     .field("name", inputName)
                     .asEmpty();
 
+            final int responseStatusFound = 302;
             assertThat(responsePost.getStatus()).isEqualTo(responseStatusFound);
             assertThat(responsePost.getHeaders().getFirst("Location")).isEqualTo("/urls");
 
@@ -156,7 +156,6 @@ class AppTest {
                     .post(baseUrl + "/urls/" + existingUrl.getId() + "/checks")
                     .asString();
 
-            assertThat(response.getStatus()).isEqualTo(responseStatusFound);
             assertThat(response.getHeaders().getFirst("Location")).isEqualTo("/urls/" + existingUrl.getId());
 
             String body = Unirest
