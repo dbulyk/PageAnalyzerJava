@@ -38,6 +38,7 @@ class AppTest {
     private static Transaction transaction;
     private final int responseStatusSuccess = 200;
     private final int responseStatusFound = 302;
+    private final int responseStatusUncorrectedUrl = 422;
     private static MockWebServer mockWebServer;
 
     @BeforeAll
@@ -131,6 +132,18 @@ class AppTest {
 
             assertThat(actualUrl).isNotNull();
             assertThat(actualUrl.getName()).isEqualTo(inputName);
+        }
+
+        @Test
+        void testCreateExistingUrl() {
+            HttpResponse<String> responsePost = Unirest
+                    .post(baseUrl + "/urls")
+                    .field("name", "https://ru.hexlet.io")
+                    .asString();
+            String body = responsePost.getBody();
+
+            assertThat(responsePost.getStatus()).isEqualTo(responseStatusUncorrectedUrl);
+            assertThat(body).contains("Страница уже существует");
         }
 
         @Test

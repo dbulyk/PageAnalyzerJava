@@ -4,6 +4,7 @@ import hexlet.code.domain.Url;
 import hexlet.code.domain.UrlCheck;
 import hexlet.code.domain.query.QUrl;
 import hexlet.code.domain.query.QUrlCheck;
+import io.ebean.DuplicateKeyException;
 import io.javalin.http.Handler;
 import io.javalin.http.NotFoundResponse;
 import io.ebean.PagedList;
@@ -13,6 +14,7 @@ import kong.unirest.UnirestException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -60,32 +62,30 @@ public class UrlController {
     };
 
     private static Handler createUrl = ctx -> {
-        String name = ctx.formParam("name");
+        String nameUrl = ctx.formParam("name");
 
-        URL fullUrl = new URL(name);
-        String protocol = fullUrl.getProtocol();
-        String domain = fullUrl.getAuthority();
-        String shortUrl = protocol + "://" + domain;
+        try {
+            URL fullUrl = new URL(nameUrl);
+            String protocol = fullUrl.getProtocol();
+            String domain = fullUrl.getAuthority();
+            String shortUrl = protocol + "://" + domain;
 
-        Url findUrl = new QUrl()
-                .name.equalTo(shortUrl)
-                .findOne();
-
-        if (findUrl != null) {
-            ctx.sessionAttribute("flash", "Страница уже существует");
+            Url url = new Url(shortUrl);
+            url.save();
+        } catch (MalformedURLException | DuplicateKeyException e) {
+            final int statusCode = 422;
+            String errorMsg = e instanceof DuplicateKeyException ? "Страница уже существует" : "Некорректный URL";
+            ctx.status(statusCode);
             ctx.sessionAttribute("flash-type", "danger");
-            ctx.attribute("url", findUrl);
+            ctx.sessionAttribute("flash", errorMsg);
             ctx.render("index.html");
             return;
         }
 
-        Url url = new Url(shortUrl);
-        url.save();
         ctx.sessionAttribute("flash", "Страница успешно добавлена");
         ctx.sessionAttribute("flash-type", "success");
         ctx.redirect("/urls");
     };
-
     private static Handler showUrl = ctx -> {
         int id = ctx.pathParamAsClass("id", Integer.class).getOrDefault(null);
 
