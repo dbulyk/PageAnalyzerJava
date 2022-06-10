@@ -23,11 +23,6 @@ public class UrlCheck extends Model {
     @WhenCreated
     private Instant createdAt;
 
-    public UrlCheck(int code, Url u) {
-        this.statusCode = code;
-        this.url = u;
-    }
-
     public UrlCheck(int code, String t, String h, String desc, Url u) {
         this.statusCode = code;
         this.title = t;

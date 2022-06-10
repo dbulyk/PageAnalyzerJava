@@ -135,32 +135,31 @@ public class UrlController {
             response = Unirest
                     .get(url.getName())
                     .asString();
+
+            Document body = Jsoup.parse(response.getBody());
+            int statusCode = response.getStatus();
+            String title = body.title();
+            String description = null;
+            String h1 = null;
+
+            if (body.selectFirst("meta[name=description]") != null) {
+                description = body.selectFirst("meta[name=description]").attr("content");
+            }
+
+            if (body.selectFirst("h1") != null) {
+                h1 = body.selectFirst("h1").text();
+            }
+
+            UrlCheck check = new UrlCheck(statusCode, title, h1, description, url);
+            check.save();
+
+            ctx.sessionAttribute("flash", "Страница успешно проверена");
+            ctx.sessionAttribute("flash-type", "success");
         } catch (UnirestException e) {
             ctx.sessionAttribute("flash", "Страница не может быть проверена, невалидный URL.");
             ctx.sessionAttribute("flash-type", "danger");
-            ctx.redirect("/urls/" + id);
-            return;
+
         }
-
-        Document body = Jsoup.parse(response.getBody());
-        int statusCode = response.getStatus();
-        String title = body.title();
-        String description = null;
-        String h1 = null;
-
-        if (body.selectFirst("meta[name=description]") != null) {
-            description = body.selectFirst("meta[name=description]").attr("content");
-        }
-
-        if (body.selectFirst("h1") != null) {
-            h1 = body.selectFirst("h1").text();
-        }
-
-        UrlCheck check = new UrlCheck(statusCode, title, h1, description, url);
-        check.save();
-
-        ctx.sessionAttribute("flash", "Страница успешно проверена");
-        ctx.sessionAttribute("flash-type", "success");
         ctx.redirect("/urls/" + id);
     };
 }
