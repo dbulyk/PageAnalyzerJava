@@ -63,24 +63,36 @@ public class UrlController {
 
     private static Handler createUrl = ctx -> {
         String nameUrl = ctx.formParam("name");
+        URL fullUrl;
 
         try {
-            URL fullUrl = new URL(nameUrl);
-            String protocol = fullUrl.getProtocol();
-            String domain = fullUrl.getAuthority();
-            String shortUrl = protocol + "://" + domain;
-
-            Url url = new Url(shortUrl);
-            url.save();
-        } catch (MalformedURLException | DuplicateKeyException e) {
-            final int statusCode = 422;
-            String errorMsg = e instanceof DuplicateKeyException ? "Страница уже существует" : "Некорректный URL";
-            ctx.status(statusCode);
+            fullUrl = new URL(nameUrl);
+        } catch (MalformedURLException e) {
+            ctx.status(422);
             ctx.sessionAttribute("flash-type", "danger");
-            ctx.sessionAttribute("flash", errorMsg);
+            ctx.sessionAttribute("flash", "Некорректный URL");
             ctx.render("index.html");
             return;
         }
+
+        Url duplicateUrl = new QUrl()
+                .name.equalTo(nameUrl)
+                .findOne();
+
+        if (duplicateUrl != null) {
+            ctx.status(422);
+            ctx.sessionAttribute("flash", "Страница уже существует");
+            ctx.sessionAttribute("flash-type", "danger");
+            ctx.render("index.html");
+            return;
+        }
+
+        String protocol = fullUrl.getProtocol();
+        String domain = fullUrl.getAuthority();
+        String shortUrl = protocol + "://" + domain;
+
+        Url url = new Url(shortUrl);
+        url.save();
 
         ctx.sessionAttribute("flash", "Страница успешно добавлена");
         ctx.sessionAttribute("flash-type", "success");
