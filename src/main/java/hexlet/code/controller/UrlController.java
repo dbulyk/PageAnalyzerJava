@@ -4,7 +4,6 @@ import hexlet.code.domain.Url;
 import hexlet.code.domain.UrlCheck;
 import hexlet.code.domain.query.QUrl;
 import hexlet.code.domain.query.QUrlCheck;
-import io.ebean.DuplicateKeyException;
 import io.javalin.http.Handler;
 import io.javalin.http.NotFoundResponse;
 import io.ebean.PagedList;
@@ -64,11 +63,12 @@ public class UrlController {
     private static Handler createUrl = ctx -> {
         String nameUrl = ctx.formParam("name");
         URL fullUrl;
+        final int statusUnprocessable = 422;
 
         try {
             fullUrl = new URL(nameUrl);
         } catch (MalformedURLException e) {
-            ctx.status(422);
+            ctx.status(statusUnprocessable);
             ctx.sessionAttribute("flash-type", "danger");
             ctx.sessionAttribute("flash", "Некорректный URL");
             ctx.render("index.html");
@@ -80,7 +80,7 @@ public class UrlController {
                 .findOne();
 
         if (duplicateUrl != null) {
-            ctx.status(422);
+            ctx.status(statusUnprocessable);
             ctx.sessionAttribute("flash", "Страница уже существует");
             ctx.sessionAttribute("flash-type", "danger");
             ctx.render("index.html");
