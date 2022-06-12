@@ -112,7 +112,7 @@ class AppTest {
             String inputName = "https://www.example.com";
             HttpResponse responsePost = Unirest
                     .post(baseUrl + "/urls")
-                    .field("name", inputName)
+                    .field("url", inputName)
                     .asEmpty();
 
             assertThat(responsePost.getStatus()).isEqualTo(responseStatusFound);
@@ -138,7 +138,7 @@ class AppTest {
         void testCreateExistingUrl() {
             HttpResponse<String> responsePost = Unirest
                     .post(baseUrl + "/urls")
-                    .field("name", "https://ru.hexlet.io")
+                    .field("url", "https://ru.hexlet.io")
                     .asString();
             String body = responsePost.getBody();
 

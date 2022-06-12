@@ -61,9 +61,9 @@ public class UrlController {
     };
 
     private static Handler createUrl = ctx -> {
-        String nameUrl = ctx.formParam("name");
         URL fullUrl;
         final int statusUnprocessable = 422;
+        String nameUrl = ctx.formParam("url");
 
         try {
             fullUrl = new URL(nameUrl);
