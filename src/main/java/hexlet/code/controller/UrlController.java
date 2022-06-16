@@ -19,22 +19,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 public class UrlController {
-    public static Handler getCreateUrl() {
-        return createUrl;
-    }
-
-    public static Handler getShowUrl() {
-        return showUrl;
-    }
-
-    public static Handler getListUrl() {
-        return listUrl;
-    }
-
-    public static Handler getUrlCheck() {
-        return urlCheck;
-    }
-    private static Handler listUrl = ctx -> {
+    public static final Handler LIST_URL = ctx -> {
         int page = ctx.queryParamAsClass("page", Integer.class).getOrDefault(1) - 1;
         final int rowsPerPage = 10;
 
@@ -60,7 +45,7 @@ public class UrlController {
         ctx.render("urls/index.html");
     };
 
-    private static Handler createUrl = ctx -> {
+    public static final Handler CREATE_URL = ctx -> {
         URL fullUrl;
         final int statusUnprocessable = 422;
         String nameUrl = ctx.formParam("url");
@@ -98,7 +83,8 @@ public class UrlController {
         ctx.sessionAttribute("flash-type", "success");
         ctx.redirect("/urls");
     };
-    private static Handler showUrl = ctx -> {
+
+    public static final Handler SHOW_URL = ctx -> {
         int id = ctx.pathParamAsClass("id", Integer.class).getOrDefault(null);
 
         Url url = new QUrl()
@@ -119,7 +105,7 @@ public class UrlController {
         ctx.render("urls/show.html");
     };
 
-    private static Handler urlCheck = ctx -> {
+    public static final Handler URL_CHECK = ctx -> {
         long id = ctx.pathParamAsClass("id", Long.class).getOrDefault(null);
 
         Url url = new QUrl()

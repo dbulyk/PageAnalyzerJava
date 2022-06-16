@@ -28,15 +28,15 @@ public final class App {
     }
 
     private static void addRoutes(Javalin app) {
-        app.get("/", RootController.getUrl());
+        app.get("/", RootController.URL);
 
         app.routes(() -> {
             path("/urls", () -> {
-                get(UrlController.getListUrl());
-                post(UrlController.getCreateUrl());
+                get(UrlController.LIST_URL);
+                post(UrlController.CREATE_URL);
                 path("{id}", () -> {
-                    get(UrlController.getShowUrl());
-                    post("/checks", UrlController.getUrlCheck());
+                    get(UrlController.SHOW_URL);
+                    post("/checks", UrlController.URL_CHECK);
                 });
             });
         });
